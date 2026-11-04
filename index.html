@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-root="">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>个人网站</title>
+<link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+<canvas id="petals" aria-hidden="true"></canvas>
+<nav class="site-nav" id="site-nav"></nav>
+
+<main class="wrap">
+  <header class="hero">
+    <div class="avatar" id="avatar"></div>
+    <h1 id="name"></h1>
+    <p id="intro"></p>
+  </header>
+
+  <section>
+    <h2 class="section-title">板块</h2>
+    <div class="sections" id="sections"></div>
+  </section>
+
+  <section style="padding-top:24px">
+    <h2 class="section-title">最新文章</h2>
+    <div class="post-list" id="latest"></div>
+  </section>
+</main>
+
+<footer class="site-footer" id="site-footer"></footer>
+
+<script src="assets/site.js"></script>
+<script>
+renderChrome("home");
+startPetals();
+
+document.title = SITE.name + " · 个人网站";
+document.getElementById("name").textContent = SITE.name;
+document.getElementById("intro").textContent = SITE.intro;
+document.getElementById("avatar").innerHTML = SITE.avatar
+  ? `<img src="${esc(SITE.avatar)}" alt="${esc(SITE.name)}">`
+  : esc(SITE.name.trim().charAt(0) || "S");
+
+document.getElementById("sections").innerHTML = SITE.sections.map(s => `
+  <a class="card section-card ${s.ready ? "" : "soon"}" href="${s.ready ? esc(s.href) : "#"}">
+    ${s.ready ? "" : '<span class="badge">即将上线</span>'}
+    <div class="icon">${s.icon}</div>
+    <h3>${esc(s.title)}</h3>
+    <p>${esc(s.desc)}</p>
+  </a>`).join("");
+
+loadPosts().then(posts => {
+  const box = document.getElementById("latest");
+  if (!posts.length) { box.innerHTML = '<div class="empty">还没有文章</div>'; return; }
+  box.innerHTML = posts.slice(0, 3).map(p => `
+    <a class="card post-item" href="blog/post.html?p=${encodeURIComponent(p.slug)}">
+      <h3>${esc(p.title)}</h3>
+      <div class="meta">${esc(p.date)}</div>
+      <p class="summary">${esc(p.summary)}</p>
+    </a>`).join("") +
+    '<div style="text-align:center;margin-top:8px"><a class="btn" href="blog/">查看全部文章</a></div>';
+}).catch(() => {
+  document.getElementById("latest").innerHTML =
+    '<div class="empty">文章列表加载失败。直接双击打开文件时浏览器会拦截读取，请用 GitHub Pages 或本地服务器预览。</div>';
+});
+</script>
+</body>
+</html>

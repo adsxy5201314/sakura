@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-root="../">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>文章</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<canvas id="petals" aria-hidden="true"></canvas>
+<nav class="site-nav" id="site-nav"></nav>
+
+<main class="wrap">
+  <article class="article">
+    <a class="back" href="./">← 返回博客</a>
+    <h1 class="title" id="title">加载中…</h1>
+    <div class="meta" id="meta"></div>
+    <div class="tags" id="tags"></div>
+    <div class="prose" id="content"></div>
+    <nav class="post-nav" id="postNav"></nav>
+  </article>
+</main>
+
+<footer class="site-footer" id="site-footer"></footer>
+
+<script src="../assets/vendor/marked.min.js"></script>
+<script src="../assets/vendor/purify.min.js"></script>
+<script src="../assets/site.js"></script>
+<script>
+renderChrome("blog");
+
+const slug = new URLSearchParams(location.search).get("p");
+const $ = id => document.getElementById(id);
+
+function fail(msg) {
+  $("title").textContent = "文章不存在";
+  $("content").innerHTML = `<p class="muted">${esc(msg)}</p><p><a href="./">回到文章列表</a></p>`;
+}
+
+(async () => {
+  try {
+    const posts = await loadPosts();
+    const i = posts.findIndex(p => p.slug === slug);
+    if (i < 0) return fail("没有找到这篇文章，可能链接写错了。");
+    const post = posts[i];
+
+    const res = await fetch(`posts/${encodeURIComponent(post.slug)}.md`, { cache: "no-cache" });
+    if (!res.ok) return fail("文章文件读取失败。");
+    const md = await res.text();
+
+    document.title = `${post.title} · ${SITE.name}`;
+    $("title").textContent = post.title;
+    const minutes = Math.max(1, Math.round(md.replace(/\s/g, "").length / 400));
+    $("meta").textContent = `${post.date} · 约 ${minutes} 分钟读完`;
+    $("tags").innerHTML = (post.tags || []).map(t =>
+      `<a class="tag" href="./?tag=${encodeURIComponent(t)}">${esc(t)}</a>`).join("");
+    $("content").innerHTML = DOMPurify.sanitize(marked.parse(md));
+
+    // 上一篇 / 下一篇（列表按日期从新到旧排）
+    const newer = posts[i - 1], older = posts[i + 1];
+    $("postNav").innerHTML =
+      (older ? `<a href="?p=${encodeURIComponent(older.slug)}">← ${esc(older.title)}</a>` : "<span></span>") +
+      (newer ? `<a href="?p=${encodeURIComponent(newer.slug)}" style="text-align:right">${esc(newer.title)} →</a>` : "<span></span>");
+  } catch (e) {
+    fail("加载失败。直接双击打开文件时浏览器会拦截读取，请用 GitHub Pages 或本地服务器预览。");
+  }
+})();
+</script>
+</body>
+</html>
