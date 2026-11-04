@@ -2,9 +2,13 @@
  * 全站配置：改名字、介绍、板块，都在 SITE 里改
  * ============================================================ */
 const SITE = {
-  name: "你的名字",
+  name: "小雨淅淅",
   avatar: "",   // 头像图片地址，留空就显示名字的第一个字
-  intro: "欢迎来到我的小站。这里记录我的想法、作品和生活。",
+  intro: "摸鱼的🐟",
+
+  // 网站正式地址（以 / 结尾）。以后换成自己的域名时，改这里和 sitemap.xml、robots.txt
+  url: "https://adsxy5201314.github.io/sakura/",
+  email: "52101314@gmail.com",   // 联系邮箱，会显示在“关于我”和“隐私政策”里
 
   // 网站板块。ready: false 表示“即将上线”，首页显示为灰色
   sections: [
@@ -12,7 +16,7 @@ const SITE = {
     { id: "projects", icon: "🛠️", title: "作品",     desc: "做过的项目和小作品",        href: "#",     ready: false },
     { id: "photos",   icon: "📷", title: "相册",     desc: "拍下的风景和日常",          href: "#",     ready: false },
     { id: "reading",  icon: "📚", title: "书影音",   desc: "读过的书、看过的电影",      href: "#",     ready: false },
-    { id: "about",    icon: "🌸", title: "关于我",   desc: "我是谁，以及怎么找到我",    href: "#",     ready: false }
+    { id: "about",    icon: "🌸", title: "关于我",   desc: "我是谁，以及怎么找到我",    href: "about.html", ready: true }
   ]
 };
 
@@ -40,8 +44,36 @@ function renderChrome(activeId) {
       </div>`;
   }
   const footer = document.getElementById("site-footer");
-  if (footer) footer.textContent = `© ${new Date().getFullYear()} ${SITE.name} · Made with 🌸`;
+  if (footer) footer.innerHTML =
+    `<div>© ${new Date().getFullYear()} ${esc(SITE.name)} · Made with 🌸</div>
+     <div style="margin-top:6px">
+       <a href="${ROOT}about.html">关于我</a> ·
+       <a href="${ROOT}privacy.html">隐私政策</a> ·
+       <a href="${ROOT}sitemap.xml">网站地图</a>
+     </div>`;
   initTheme();
+}
+
+/* ---------- SEO：设置标题、描述、规范链接、分享卡片 ----------
+ * path 是相对网站根目录的地址，例如 "blog/" 或 "blog/post.html?p=xxx" */
+function setMeta({ title, description, path = "", type = "website" }) {
+  const fullTitle = title ? `${title} · ${SITE.name}` : `${SITE.name} · 个人网站`;
+  const desc = description || SITE.intro;
+  const url = SITE.url + path;
+  document.title = fullTitle;
+  const put = (sel, attr, key, val) => {
+    let el = document.head.querySelector(sel);
+    if (!el) { el = document.createElement(attr === "rel" ? "link" : "meta"); el.setAttribute(attr, key); document.head.appendChild(el); }
+    el.setAttribute(attr === "rel" ? "href" : "content", val);
+  };
+  put('meta[name="description"]', "name", "description", desc);
+  put('link[rel="canonical"]', "rel", "canonical", url);
+  put('meta[property="og:title"]', "property", "og:title", fullTitle);
+  put('meta[property="og:description"]', "property", "og:description", desc);
+  put('meta[property="og:url"]', "property", "og:url", url);
+  put('meta[property="og:type"]', "property", "og:type", type);
+  put('meta[property="og:site_name"]', "property", "og:site_name", SITE.name);
+  put('meta[name="twitter:card"]', "name", "twitter:card", "summary");
 }
 
 /* ---------- 深浅色切换 ---------- */

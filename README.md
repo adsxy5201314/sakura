@@ -15,6 +15,14 @@ blog/posts.json     文章目录
 blog/posts/*.md     文章正文（Markdown）
 ```
 
+```
+about.html          关于我
+privacy.html        隐私政策（申请 Google AdSense 需要）
+404.html            找不到页面时显示
+sitemap.xml         网站地图（由 tools/build-sitemap.js 生成，推送到 main 时自动更新）
+robots.txt          搜索引擎抓取规则（绑定自己的域名后才会生效）
+```
+
 ## 常用操作
 
 - **改名字、介绍、头像**：编辑 `assets/site.js` 顶部的 `SITE`。

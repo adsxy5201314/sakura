@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>文章</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>" />
 <link rel="stylesheet" href="../assets/style.css" />
 </head>
 <body>
@@ -48,7 +49,22 @@ function fail(msg) {
     if (!res.ok) return fail("文章文件读取失败。");
     const md = await res.text();
 
-    document.title = `${post.title} · ${SITE.name}`;
+    setMeta({
+      title: post.title,
+      description: post.summary,
+      path: `blog/post.html?p=${encodeURIComponent(post.slug)}`,
+      type: "article"
+    });
+    // 结构化数据：帮助 Google 识别这是一篇博客文章
+    const ld = document.createElement("script");
+    ld.type = "application/ld+json";
+    ld.textContent = JSON.stringify({
+      "@context": "https://schema.org", "@type": "BlogPosting",
+      headline: post.title, description: post.summary,
+      datePublished: post.date, author: { "@type": "Person", name: SITE.name },
+      mainEntityOfPage: SITE.url + `blog/post.html?p=${encodeURIComponent(post.slug)}`
+    });
+    document.head.appendChild(ld);
     $("title").textContent = post.title;
     const minutes = Math.max(1, Math.round(md.replace(/\s/g, "").length / 400));
     $("meta").textContent = `${post.date} · 约 ${minutes} 分钟读完`;
