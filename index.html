@@ -1,158 +1,69 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-root="">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-<title>念念生日快乐</title>
-
-<style>
-html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle at top, #1a1a24, #0f0f14);
-    overflow: hidden;
-    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
-}
-
-#app { position: relative; width: 100vw; height: 100vh; }
-
-canvas { position: absolute; inset: 0; }
-
-/* 心形弹窗 */
-.heartBox {
-    position: absolute;
-    width: 120px;
-    height: 120px;
-    transform: translate(-50%, -50%);
-    animation: float 4s ease-in-out infinite;
-}
-
-.heart {
-    width: 100%;
-    height: 100%;
-    background: #ffd6e3;
-    position: relative;
-    transform: rotate(-45deg);
-    animation: breath 2.4s ease-in-out infinite;
-    box-shadow: 0 0 28px rgba(255, 182, 193, 0.55);
-}
-
-.heart::before,
-.heart::after {
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: #ffd6e3;
-    border-radius: 50%;
-}
-.heart::before { top: -50%; left: 0; }
-.heart::after  { left: 50%; top: 0; }
-
-/* 文案 */
-.heartText {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 14px;
-    color: #5b4a50;
-    font-size: 14px;
-    line-height: 1.4;
-    pointer-events: none;
-}
-
-/* 动画 */
-@keyframes breath { 0%,100% { transform: rotate(-45deg) scale(1); } 50% { transform: rotate(-45deg) scale(1.07); } }
-@keyframes float  { 0%,100% { transform: translate(-50%, -50%) translateY(0); } 50% { transform: translate(-50%, -50%) translateY(-12px); } }
-@keyframes fadeBreathOut { 0% { opacity:1; scale:1 } 60% { opacity:0.9; scale:0.95 } 100% { opacity:0; scale:0.75 } }
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>个人网站</title>
+<link rel="stylesheet" href="assets/style.css" />
 </head>
 <body>
-<div id="app">
-    <canvas id="bg"></canvas>
-</div>
+<canvas id="petals" aria-hidden="true"></canvas>
+<nav class="site-nav" id="site-nav"></nav>
 
+<main class="wrap">
+  <header class="hero">
+    <div class="avatar" id="avatar"></div>
+    <h1 id="name"></h1>
+    <p id="intro"></p>
+  </header>
+
+  <section>
+    <h2 class="section-title">板块</h2>
+    <div class="sections" id="sections"></div>
+  </section>
+
+  <section style="padding-top:24px">
+    <h2 class="section-title">最新文章</h2>
+    <div class="post-list" id="latest"></div>
+  </section>
+</main>
+
+<footer class="site-footer" id="site-footer"></footer>
+
+<script src="assets/site.js"></script>
 <script>
-/* ===== 背景樱花雨 ===== */
-const canvas = document.getElementById("bg");
-const ctx = canvas.getContext("2d");
+renderChrome("home");
+startPetals();
 
-function resize() { canvas.width=innerWidth; canvas.height=innerHeight; }
-addEventListener("resize", resize);
-resize();
+document.title = SITE.name + " · 个人网站";
+document.getElementById("name").textContent = SITE.name;
+document.getElementById("intro").textContent = SITE.intro;
+document.getElementById("avatar").innerHTML = SITE.avatar
+  ? `<img src="${esc(SITE.avatar)}" alt="${esc(SITE.name)}">`
+  : esc(SITE.name.trim().charAt(0) || "S");
 
-const petals = Array.from({length:36},()=>newPetal());
-function newPetal(){ return { x:Math.random()*canvas.width, y:Math.random()*canvas.height, r:Math.random()*3+2, vy:Math.random()*0.8+0.4, vx:Math.random()*0.6-0.3, a:Math.random()*Math.PI }; }
-function draw(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    for(const p of petals){
-        p.y+=p.vy; p.x+=p.vx; p.a+=0.01;
-        if(p.y>canvas.height+20) Object.assign(p,newPetal(),{y:-20});
-        ctx.save();
-        ctx.translate(p.x,p.y); ctx.rotate(p.a);
-        ctx.fillStyle="rgba(255,230,238,0.85)";
-        ctx.beginPath(); ctx.ellipse(0,0,p.r*1.3,p.r,0,0,Math.PI*2); ctx.fill();
-        ctx.restore();
-    }
-    requestAnimationFrame(draw);
-}
-draw();
+document.getElementById("sections").innerHTML = SITE.sections.map(s => `
+  <a class="card section-card ${s.ready ? "" : "soon"}" href="${s.ready ? esc(s.href) : "#"}">
+    ${s.ready ? "" : '<span class="badge">即将上线</span>'}
+    <div class="icon">${s.icon}</div>
+    <h3>${esc(s.title)}</h3>
+    <p>${esc(s.desc)}</p>
+  </a>`).join("");
 
-/* ===== 随机心形弹窗 ===== */
-const app = document.getElementById("app");
-const messages = [
-    "念念，生日快乐 🌸",
-    "愿念念每天都被温柔以待 💗",
-    "今天是念念的特别日子 🎉",
-    "念念，你是最闪亮的那颗星 ✨",
-    "记得好好照顾自己哦 ☕",
-    "愿你的笑容永远灿烂 🌞",
-    "念念，慢慢来，一切都会好 🕊",
-    "愿世界温柔以待念念 💖",
-    "今天也值得被念念喜欢 🌷",
-    "念念，你的每一天都闪闪发光 ✨",
-    "生日快乐！希望念念被幸福包围 🎂",
-    "愿念念被爱和暖意围绕 💕",
-    "小小的心愿：念念天天开心 🌸",
-    "今天，为念念许下最美好的祝福 🎈",
-    "念念，你真的很棒，值得最美的幸福 💖"
-];
-
-let active = 0;
-const MAX_ACTIVE = 6;
-
-function spawnHeart(){
-    if(active>=MAX_ACTIVE) return;
-    active++;
-
-    const box = document.createElement("div");
-    box.className = "heartBox";
-
-    const margin=90;
-    box.style.left = margin + Math.random()*(innerWidth-margin*2) + "px";
-    box.style.top  = margin + Math.random()*(innerHeight-margin*2) + "px";
-
-    const heart = document.createElement("div");
-    heart.className="heart";
-
-    const text = document.createElement("div");
-    text.className="heartText";
-    text.innerText = messages[Math.floor(Math.random()*messages.length)];
-
-    box.appendChild(heart);
-    box.appendChild(text);
-    app.appendChild(box);
-
-    setTimeout(()=>{ box.style.animation="fadeBreathOut 1.6s forwards"; }, 2600);
-    setTimeout(()=>{ box.remove(); active--; }, 4300);
-}
-
-setInterval(spawnHeart, 1000); // 频率稍快
+loadPosts().then(posts => {
+  const box = document.getElementById("latest");
+  if (!posts.length) { box.innerHTML = '<div class="empty">还没有文章</div>'; return; }
+  box.innerHTML = posts.slice(0, 3).map(p => `
+    <a class="card post-item" href="blog/post.html?p=${encodeURIComponent(p.slug)}">
+      <h3>${esc(p.title)}</h3>
+      <div class="meta">${esc(p.date)}</div>
+      <p class="summary">${esc(p.summary)}</p>
+    </a>`).join("") +
+    '<div style="text-align:center;margin-top:8px"><a class="btn" href="blog/">查看全部文章</a></div>';
+}).catch(() => {
+  document.getElementById("latest").innerHTML =
+    '<div class="empty">文章列表加载失败。直接双击打开文件时浏览器会拦截读取，请用 GitHub Pages 或本地服务器预览。</div>';
+});
 </script>
 </body>
 </html>

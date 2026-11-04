@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-root="../">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>博客</title>
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<canvas id="petals" aria-hidden="true"></canvas>
+<nav class="site-nav" id="site-nav"></nav>
+
+<main class="wrap">
+  <header class="page-head">
+    <h1>📝 博客</h1>
+    <p id="count">随笔、技术笔记和生活记录</p>
+  </header>
+
+  <div class="toolbar">
+    <input class="search" id="search" type="search" placeholder="搜索文章标题或摘要…" />
+    <div class="tag-filter" id="tagFilter"></div>
+  </div>
+
+  <div class="post-list" id="posts"></div>
+</main>
+
+<footer class="site-footer" id="site-footer"></footer>
+
+<script src="../assets/site.js"></script>
+<script>
+renderChrome("blog");
+startPetals();
+document.title = "博客 · " + SITE.name;
+
+let all = [], activeTag = new URLSearchParams(location.search).get("tag") || "";
+
+function render() {
+  const q = document.getElementById("search").value.trim().toLowerCase();
+  const list = all.filter(p =>
+    (!activeTag || (p.tags || []).includes(activeTag)) &&
+    (!q || (p.title + " " + p.summary).toLowerCase().includes(q)));
+
+  document.getElementById("count").textContent = `共 ${all.length} 篇文章` + (activeTag ? ` · 标签「${activeTag}」` : "");
+  document.getElementById("posts").innerHTML = list.length ? list.map(p => `
+    <a class="card post-item" href="post.html?p=${encodeURIComponent(p.slug)}">
+      <h3>${esc(p.title)}</h3>
+      <div class="meta">${esc(p.date)}</div>
+      <p class="summary">${esc(p.summary)}</p>
+      <div class="tags">${(p.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join("")}</div>
+    </a>`).join("") : '<div class="empty">没有找到相关文章</div>';
+
+  const tags = [...new Set(all.flatMap(p => p.tags || []))];
+  document.getElementById("tagFilter").innerHTML =
+    `<button class="tag ${activeTag ? "" : "active"}" data-tag="">全部</button>` +
+    tags.map(t => `<button class="tag ${t === activeTag ? "active" : ""}" data-tag="${esc(t)}">${esc(t)}</button>`).join("");
+}
+
+document.getElementById("tagFilter").addEventListener("click", e => {
+  const b = e.target.closest("button[data-tag]");
+  if (!b) return;
+  activeTag = b.dataset.tag;
+  history.replaceState(null, "", activeTag ? `?tag=${encodeURIComponent(activeTag)}` : location.pathname);
+  render();
+});
+document.getElementById("search").addEventListener("input", render);
+
+loadPosts().then(p => { all = p; render(); }).catch(() => {
+  document.getElementById("posts").innerHTML =
+    '<div class="empty">文章列表加载失败。直接双击打开文件时浏览器会拦截读取，请用 GitHub Pages 或本地服务器预览。</div>';
+});
+</script>
+</body>
+</html>
