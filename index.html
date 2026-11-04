@@ -4,6 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>个人网站</title>
+<meta name="description" content="我的个人网站：博客、作品与生活记录。" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>" />
 <link rel="stylesheet" href="assets/style.css" />
 </head>
 <body>
@@ -35,7 +37,7 @@
 renderChrome("home");
 startPetals();
 
-document.title = SITE.name + " · 个人网站";
+setMeta({});
 document.getElementById("name").textContent = SITE.name;
 document.getElementById("intro").textContent = SITE.intro;
 document.getElementById("avatar").innerHTML = SITE.avatar

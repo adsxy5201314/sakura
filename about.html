@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-root="">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>关于我</title>
+<meta name="description" content="关于这个网站的主人，以及联系方式。" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>" />
+<link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+<canvas id="petals" aria-hidden="true"></canvas>
+<nav class="site-nav" id="site-nav"></nav>
+
+<main class="wrap">
+  <header class="page-head">
+    <h1>🌸 关于我</h1>
+    <p>我是谁，以及怎么找到我</p>
+  </header>
+
+  <!-- ===== 把下面的占位文字换成你自己的内容 ===== -->
+  <div class="card prose" style="margin-bottom:24px">
+    <h2 style="margin-top:0">你好，我是 <span class="js-name"></span></h2>
+    <p>在这里写一段自我介绍：你是谁、在做什么、对什么感兴趣。</p>
+    <p>写这个网站的原因：比如想记录生活、整理学到的东西，或者认识志同道合的朋友。</p>
+
+    <h3>我会在这里写什么</h3>
+    <ul>
+      <li>生活随笔</li>
+      <li>学习笔记</li>
+      <li>做过的小项目</li>
+    </ul>
+
+    <h3>联系我</h3>
+    <p>邮箱：<a class="js-email"></a></p>
+    <p class="muted">欢迎交流、合作或者只是打个招呼。</p>
+  </div>
+</main>
+
+<footer class="site-footer" id="site-footer"></footer>
+
+<script src="assets/site.js"></script>
+<script>
+renderChrome("about");
+startPetals();
+setMeta({ title: "关于我", description: `关于 ${SITE.name}，以及联系方式。`, path: "about.html" });
+document.querySelectorAll(".js-name").forEach(el => el.textContent = SITE.name);
+document.querySelectorAll(".js-email").forEach(el => { el.textContent = SITE.email; el.href = "mailto:" + SITE.email; });
+</script>
+</body>
+</html>

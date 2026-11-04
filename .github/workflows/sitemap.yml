@@ -1,0 +1,35 @@
+# 文章目录或网站配置变化时，自动重新生成 sitemap.xml 并提交
+name: Update sitemap
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "blog/posts.json"
+      - "assets/site.js"
+      - "tools/build-sitemap.js"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sitemap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node tools/build-sitemap.js
+      - name: Commit if changed
+        run: |
+          if git diff --quiet sitemap.xml; then
+            echo "sitemap.xml 没有变化"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sitemap.xml
+          git commit -m "Update sitemap.xml"
+          git push

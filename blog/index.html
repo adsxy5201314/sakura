@@ -4,6 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>博客</title>
+<meta name="description" content="随笔、技术笔记和生活记录。" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>" />
 <link rel="stylesheet" href="../assets/style.css" />
 </head>
 <body>
@@ -30,7 +32,7 @@
 <script>
 renderChrome("blog");
 startPetals();
-document.title = "博客 · " + SITE.name;
+setMeta({ title: "博客", description: "随笔、技术笔记和生活记录。", path: "blog/" });
 
 let all = [], activeTag = new URLSearchParams(location.search).get("tag") || "";
 
