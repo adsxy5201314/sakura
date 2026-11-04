@@ -8,7 +8,7 @@ const SITE = {
 
   // 网站正式地址（以 / 结尾）。以后换成自己的域名时，改这里和 sitemap.xml、robots.txt
   url: "https://adsxy5201314.github.io/sakura/",
-  email: "2390445271@qq.com",   // 联系邮箱，会显示在“关于我”和“隐私政策”里
+  email: "52101314@gmail.com",   // 联系邮箱，会显示在“关于我”和“隐私政策”里
 
   // 网站板块。ready: false 表示“即将上线”，首页显示为灰色
   sections: [
